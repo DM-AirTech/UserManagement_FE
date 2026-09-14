@@ -23,14 +23,43 @@
 
 /* ── Icon ── */
 .result-icon {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
+.result-icon--success {
+  background: #e6f4ef;
+  color: #0f6e56;
+}
+
+.result-icon--pending {
+  background: #fdf3e0;
+  color: #92650a;
+}
+
+.result-icon--failed {
+  background: #fbe9e9;
+  color: #c53030;
+}
+
+/* ── Loading spinner ── */
 .result-icon.spinning {
-  animation: spin 2s linear infinite;
+  background: none;
+}
+
+.spinner-ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--brand-orange);
+  border-radius: 50%;
   display: inline-block;
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
@@ -43,6 +72,7 @@
   font-size: 1.6rem;
   color: var(--brand-navy);
   margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
 }
 
 .result-subtitle {
@@ -62,6 +92,11 @@
 .result-hint a {
   color: var(--brand-blue);
   text-decoration: underline;
+}
+
+.result-hint-strong {
+  color: var(--brand-navy);
+  font-weight: 600;
 }
 
 /* ── Detail rows ── */
@@ -97,6 +132,10 @@
   text-align: right;
 }
 
+.detail-value--muted {
+  color: #92650a;
+}
+
 .status-active  { color: #0f6e56; }
 .status-pending { color: #856404; }
 .status-failed  { color: #c53030; }
@@ -128,7 +167,6 @@
 .product-btn {
   display: flex;
   align-items: center;
-  gap: 1rem;
   padding: 0.9rem 1.25rem;
   border: none;
   border-radius: 10px;
@@ -142,11 +180,6 @@
 .product-btn:hover {
   transform: translateY(-2px);
   opacity: 0.92;
-}
-
-.product-btn-icon {
-  font-size: 1.8rem;
-  flex-shrink: 0;
 }
 
 .product-btn span strong {

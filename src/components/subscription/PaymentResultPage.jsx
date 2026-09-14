@@ -109,11 +109,13 @@ const PaymentResultPage = () => {
         {/* ── LOADING / POLLING ── */}
         {pageState === "loading" && (
           <>
-            <div className="result-icon spinning">⏳</div>
-            <h1>Processing your payment...</h1>
+            <div className="result-icon spinning" aria-hidden="true">
+              <span className="spinner-ring" />
+            </div>
+            <h1>Confirming your payment</h1>
             <p className="result-subtitle">
-              We are confirming your payment.
-              This usually takes a few seconds.
+              We're finalizing things with your payment provider.
+              This usually takes just a few seconds.
             </p>
             <div className="progress-bar">
               <div
@@ -122,7 +124,7 @@ const PaymentResultPage = () => {
               />
             </div>
             <p className="result-hint">
-              Attempt {pollCount + 1} of {MAX_POLLS}...
+              Attempt {pollCount + 1} of {MAX_POLLS}
             </p>
           </>
         )}
@@ -130,10 +132,14 @@ const PaymentResultPage = () => {
         {/* ── SUCCESS ── */}
         {pageState === "success" && (
           <>
-            <div className="result-icon">✅</div>
-            <h1>Payment Successful!</h1>
+            <div className="result-icon result-icon--success" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h1>You're all set</h1>
             <p className="result-subtitle">
-              Your subscription is now active. Here's what has been updated:
+              Your subscription is active. Here's a summary of your plan.
             </p>
 
             <div className="result-details">
@@ -145,86 +151,81 @@ const PaymentResultPage = () => {
                 <span className="detail-label">Status</span>
                 <span className="detail-value status-active">Active</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">API Calls</span>
-                <span className="detail-value">
-                  {subStatus.api_limit?.toLocaleString()} calls
-                </span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Billing</span>
-                <span className="detail-value">
-                  {subStatus.interval === "monthly" ? "Monthly" : "Yearly"}
-                </span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Amount paid</span>
-                <span className="detail-value">
-                  {subStatus.amount_paid != null
-                    ? `${subStatus.amount_paid.toFixed(2)} ${subStatus.currency || "EUR"}`
-                    : "—"}
-                </span>
-              </div>
-              {subStatus.discount_code && (
-                <div className="detail-row">
-                  <span className="detail-label">Discount applied</span>
-                  <span className="detail-value">
-                    {subStatus.discount_code}
-                    {subStatus.discount_percent != null && ` (-${subStatus.discount_percent}%)`}
-                  </span>
-                </div>
-              )}
-              {subStatus.current_period_end && (
-                <div className="detail-row">
-                  <span className="detail-label">Next renewal</span>
-                  <span className="detail-value">
-                    {new Date(subStatus.current_period_end).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-              )}
-              {subStatus.activated_at && (
-                <div className="detail-row">
-                  <span className="detail-label">Activated at</span>
-                  <span className="detail-value">
-                    {new Date(subStatus.activated_at).toLocaleString("en-GB")}
-                  </span>
-                </div>
-              )}
+
               {subStatus.is_custom ? (
-                <div className="result-details">
-                    <div className="detail-row">
-                    <span className="detail-label">Plan</span>
-                    <span className="detail-value">{subStatus.plan_name}</span>
-                    </div>
-                    <div className="detail-row">
+                <>
+                  <div className="detail-row">
                     <span className="detail-label">Type</span>
-                    <span className="detail-value" style={{ color: "#856404" }}>
-                        Custom / Internal
-                    </span>
-                    </div>
-                    <div className="detail-row">
+                    <span className="detail-value detail-value--muted">Custom / Internal</span>
+                  </div>
+                  <div className="detail-row">
                     <span className="detail-label">API Calls</span>
                     <span className="detail-value">Unlimited</span>
-                    </div>
-                    <div className="detail-row">
+                  </div>
+                  <div className="detail-row">
                     <span className="detail-label">Expires</span>
                     <span className="detail-value">Never</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="detail-row">
+                    <span className="detail-label">API Calls</span>
+                    <span className="detail-value">
+                      {subStatus.api_limit?.toLocaleString()} calls
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Billing</span>
+                    <span className="detail-value">
+                      {subStatus.interval === "monthly" ? "Monthly" : "Yearly"}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Amount paid</span>
+                    <span className="detail-value">
+                      {subStatus.amount_paid != null
+                        ? `${subStatus.amount_paid.toFixed(2)} ${subStatus.currency || "EUR"}`
+                        : "—"}
+                    </span>
+                  </div>
+                  {subStatus.discount_code && (
+                    <div className="detail-row">
+                      <span className="detail-label">Discount applied</span>
+                      <span className="detail-value">
+                        {subStatus.discount_code}
+                        {subStatus.discount_percent != null && ` (-${subStatus.discount_percent}%)`}
+                      </span>
                     </div>
-                </div>
-                ) : (
-                <div className="result-details">
-                    {/* existing detail rows */}
-                </div>
-                )}
+                  )}
+                  {subStatus.current_period_end && (
+                    <div className="detail-row">
+                      <span className="detail-label">Next renewal</span>
+                      <span className="detail-value">
+                        {new Date(subStatus.current_period_end).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  )}
+                  {subStatus.activated_at && (
+                    <div className="detail-row">
+                      <span className="detail-label">Activated at</span>
+                      <span className="detail-value">
+                        {new Date(subStatus.activated_at).toLocaleString("en-GB")}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             <p className="result-hint">
-              Your API limit has been updated. You can now use your API key
-              across our products.
+              Your API key is now active across our products. You'll receive
+              your invoices by email from{" "}
+              <span className="result-hint-strong">donotreply@dm-airtech.com</span>.
             </p>
 
             <div className="product-buttons">
@@ -232,7 +233,6 @@ const PaymentResultPage = () => {
                 className="product-btn vertimonitor-btn"
                 onClick={() => goToProduct(VERTIMONITOR_URL)}
               >
-                <span className="product-btn-icon">🛰️</span>
                 <span>
                   <strong>Go to VertiMonitor</strong>
                   <small>Real-time airspace monitoring</small>
@@ -243,7 +243,6 @@ const PaymentResultPage = () => {
                 className="product-btn vertiplace-btn"
                 onClick={() => goToProduct(VERTIPLACE_URL)}
               >
-                <span className="product-btn-icon">📍</span>
                 <span>
                   <strong>Go to VertiPlace</strong>
                   <small>Vertiport location intelligence</small>
@@ -255,7 +254,7 @@ const PaymentResultPage = () => {
               className="back-btn"
               onClick={() => navigate("/subscribe")}
             >
-              ← Back to subscription page
+              Back to subscription page
             </button>
           </>
         )}
@@ -263,11 +262,16 @@ const PaymentResultPage = () => {
         {/* ── UNPROCESSED (pending after max polls) ── */}
         {pageState === "unprocessed" && (
           <>
-            <div className="result-icon">⚠️</div>
-            <h1>Payment Received</h1>
+            <div className="result-icon result-icon--pending" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 7v5l3 3" />
+              </svg>
+            </div>
+            <h1>Payment received</h1>
             <p className="result-subtitle">
-              Your payment was received but your subscription
-              is still being processed. This can take a few minutes.
+              Your payment was received but your subscription is still
+              being processed. This can take a few minutes.
             </p>
 
             <div className="result-details">
@@ -298,14 +302,14 @@ const PaymentResultPage = () => {
                   fetchStatus();
                 }}
               >
-                🔄 Check again
+                Check again
               </button>
 
               <button
                 className="back-btn"
                 onClick={() => navigate("/subscribe")}
               >
-                ← Back to subscription page
+                Back to subscription page
               </button>
             </div>
           </>
@@ -314,8 +318,12 @@ const PaymentResultPage = () => {
         {/* ── FAILED ── */}
         {pageState === "failed" && (
           <>
-            <div className="result-icon">❌</div>
-            <h1>Payment Failed</h1>
+            <div className="result-icon result-icon--failed" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </div>
+            <h1>Payment failed</h1>
             <p className="result-subtitle">
               Your payment was not completed. No charges have been made
               to your account.
@@ -350,14 +358,14 @@ const PaymentResultPage = () => {
                 className="product-btn vertimonitor-btn"
                 onClick={() => navigate("/subscribe")}
               >
-                🔄 Try again
+                Try again
               </button>
 
               <button
                 className="back-btn"
                 onClick={() => navigate("/")}
               >
-                ← Go to dashboard
+                Go to dashboard
               </button>
             </div>
           </>
