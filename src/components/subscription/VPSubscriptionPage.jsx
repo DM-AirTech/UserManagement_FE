@@ -387,15 +387,15 @@ const VPSubscriptionPage = () => {
                           return (
                             <div key={idx} className="grid-cell plan-feature-col">
                               {value === true ? (
-                                "Included"
+                                <span className="feature-check" aria-label="Included">✓</span>
                               ) : value === false ? (
-                                "—"
+                                <span className="feature-dash" aria-hidden="true">–</span>
                               ) : (
                                 <span className="value-text">{value}</span>
                               )}
                             </div>
                           );
-                        })}
+                        })}                        
                       </div>
                     ))}
                   </React.Fragment>
