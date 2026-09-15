@@ -13,17 +13,18 @@ const PaymentResultPage = () => {
   const [loading, setLoading]       = useState(true);
   const [pollCount, setPollCount]   = useState(0);
   const [paymentParam, setPaymentParam] = useState(null);
+  const [product, setProduct] = useState("vertimonitor");
 
   const navigate   = useNavigate();
   const apiKey     = localStorage.getItem("userApiKey");
   const MAX_POLLS  = 10;
   const POLL_INTERVAL = 3000;
 
-  // ── Read ?payment= param from URL ──────────────────────────────
+  // ── Read ?payment= and ?product= params from URL ─────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const p = params.get("payment");
-    setPaymentParam(p);
+    setPaymentParam(params.get("payment"));
+    setProduct(params.get("product") || "vertimonitor");
   }, []);
 
   // ── If Stripe sent us back via cancel_url, tell the backend right
@@ -35,6 +36,7 @@ const PaymentResultPage = () => {
   // or blocking, and any error is just logged, not surfaced to the user.
   useEffect(() => {
     if (paymentParam !== "failed") return;
+    if (product !== "vertimonitor") return; // VertiPlace has no /checkout/abandon endpoint yet
 
     fetch(`${API_BASE}/subscriptions/checkout/abandon`, {
       method: "POST",
@@ -42,12 +44,16 @@ const PaymentResultPage = () => {
     }).catch((err) => {
       console.error("Failed to abandon checkout (non-blocking):", err);
     });
-  }, [paymentParam, apiKey]);
+  }, [paymentParam, product, apiKey]);
 
   // ── Fetch subscription status ───────────────────────────────────
   const fetchStatus = useCallback(async () => {
+    const statusEndpoint =
+      product === "vertiplace"
+        ? `${API_BASE}/vertiplace-subscriptions/status`
+        : `${API_BASE}/subscriptions/status`;
     try {
-      const res = await fetch(`${API_BASE}/subscriptions/status`, {
+      const res = await fetch(statusEndpoint, {
         headers: { "X-User-API-Key": apiKey },
       });
       if (res.ok) {
@@ -59,7 +65,7 @@ const PaymentResultPage = () => {
       console.error("Status fetch failed:", err);
     }
     return null;
-  }, [apiKey]);
+  }, [apiKey, product]);
 
   // ── Poll until active or max polls reached ──────────────────────
   useEffect(() => {
@@ -169,12 +175,14 @@ const PaymentResultPage = () => {
                 </>
               ) : (
                 <>
-                  <div className="detail-row">
-                    <span className="detail-label">API Calls</span>
-                    <span className="detail-value">
-                      {subStatus.api_limit?.toLocaleString()} calls
-                    </span>
-                  </div>
+                  {product !== "vertiplace" && (
+                    <div className="detail-row">
+                      <span className="detail-label">API Calls</span>
+                      <span className="detail-value">
+                        {subStatus.api_limit?.toLocaleString()} calls
+                      </span>
+                    </div>
+                  )}
                   <div className="detail-row">
                     <span className="detail-label">Billing</span>
                     <span className="detail-value">
@@ -252,7 +260,7 @@ const PaymentResultPage = () => {
 
             <button
               className="back-btn"
-              onClick={() => navigate("/subscribe")}
+              onClick={() => navigate(product === "vertiplace" ? "/subscribe-vertiplace" : "/subscribe")}
             >
               Back to subscription page
             </button>
@@ -307,7 +315,7 @@ const PaymentResultPage = () => {
 
               <button
                 className="back-btn"
-                onClick={() => navigate("/subscribe")}
+                onClick={() => navigate(product === "vertiplace" ? "/subscribe-vertiplace" : "/subscribe")}
               >
                 Back to subscription page
               </button>
@@ -356,7 +364,7 @@ const PaymentResultPage = () => {
             <div className="product-buttons">
               <button
                 className="product-btn vertimonitor-btn"
-                onClick={() => navigate("/subscribe")}
+                onClick={() => navigate(product === "vertiplace" ? "/subscribe-vertiplace" : "/subscribe")}
               >
                 Try again
               </button>

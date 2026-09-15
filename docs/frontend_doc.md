@@ -24,7 +24,8 @@ src/
 ├── App.js                               # Route definitions, auth state, protected routes
 ├── components/
 │   ├── subscription/
-│   │   ├── SubscriptionPage.jsx         # Plan comparison grid, subscribe/change/cancel actions
+│   │   ├──VMSubscriptionPage.jsx
+│   │   ├── VPSubscriptionPage.jsx         # Plan comparison grid, subscribe/change/cancel actions
 │   │   ├── PaymentResultPage.jsx        # Post-checkout landing page; polls /status until active
 │   │   └── ContactForm.jsx              # Corporate plan enquiry form → POST /contact
 │   ├── UserDropdown.jsx                 # Account menu (logout, My Subscriptions link)
@@ -40,7 +41,7 @@ contract these components rely on.
 
 ## 3. Functional Workflow
 
-1. **`SubscriptionPage.jsx`** fetches `/subscriptions/plans` and
+1. **`VMSubscriptionPage.jsx`** fetches `/subscriptions/plans` and
    `/subscriptions/status` on load, and renders plan cards with a
    button state derived from the user's current subscription
    (`subscribe` / `upgrade` / `downgrade` / `current` / `custom`).
