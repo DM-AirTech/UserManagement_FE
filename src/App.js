@@ -6,7 +6,8 @@ import LoginPage          from './components/login';
 import RegistrationPage   from './components/registration';
 import ApproveJoinPage    from './components/ApproveJoinPage';
 import './App.css';
-import SubscriptionPage   from './components/subscription/SubscriptionPage';
+import VMSubscriptionPage   from './components/subscription/VMSubscriptionPage';
+import VPSubscriptionPage   from './components/subscription/VPSubscriptionPage';
 import ContactForm        from "./components/subscription/ContactForm";
 import ForgotPasswordPage from './components/ForgotPassword';
 import ResetPasswordPage  from './components/ResetPassword';
@@ -134,7 +135,8 @@ function App() {
 
         <Route path="/" element={<ProtectedRoute><Navigate to="/welcome" replace /></ProtectedRoute>} />
 
-        <Route path="/subscribe"      element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
+        <Route path="/subscribe"      element={<ProtectedRoute><VMSubscriptionPage /></ProtectedRoute>} />
+        <Route path="/subscribe-vertiplace" element={<ProtectedRoute><VPSubscriptionPage /></ProtectedRoute>} />
         <Route path="/payment-result" element={<ProtectedRoute><PaymentResultPage /></ProtectedRoute>} />
         <Route path="/contact"        element={<ProtectedRoute><ContactForm /></ProtectedRoute>} />
 

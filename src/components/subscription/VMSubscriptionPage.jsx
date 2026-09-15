@@ -1,4 +1,4 @@
-// src/components/subscription/SubscriptionPage.jsx
+// src/components/subscription/VMSubscriptionPage.jsx
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,7 +7,7 @@ import "./SubscriptionPage.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
-const SubscriptionPage = () => {
+const VMSubscriptionPage = () => {
   const [userInfo, setUserInfo]           = useState(null);
   const [subStatus, setSubStatus]         = useState(null);
   const [subLoading, setSubLoading]       = useState(true);
@@ -719,4 +719,4 @@ const SubscriptionPage = () => {
   );
 };
 
-export default SubscriptionPage;
+export default VMSubscriptionPage;
