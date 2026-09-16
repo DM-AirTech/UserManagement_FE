@@ -36,9 +36,13 @@ const PaymentResultPage = () => {
   // or blocking, and any error is just logged, not surfaced to the user.
   useEffect(() => {
     if (paymentParam !== "failed") return;
-    if (product !== "vertimonitor") return; // VertiPlace has no /checkout/abandon endpoint yet
 
-    fetch(`${API_BASE}/subscriptions/checkout/abandon`, {
+    const abandonEndpoint =
+      product === "vertiplace"
+        ? `${API_BASE}/vertiplace-subscriptions/checkout/abandon`
+        : `${API_BASE}/subscriptions/checkout/abandon`;
+
+    fetch(abandonEndpoint, {
       method: "POST",
       headers: { "X-User-API-Key": apiKey },
     }).catch((err) => {
