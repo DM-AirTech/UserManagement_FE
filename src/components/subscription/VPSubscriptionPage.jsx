@@ -15,7 +15,7 @@ const VPSubscriptionPage = () => {
   const [subStatus, setSubStatus] = useState(null);
   const [subLoading, setSubLoading] = useState(true);
   const [billingCycle, setBillingCycle] = useState("monthly");
-  const [agreedPlans, setAgreedPlans] = useState({});
+  const [agreedPlanKey, setAgreedPlanKey] = useState(null);
   const [subscribingPlan, setSubscribingPlan] = useState(null);
   const [apiPlans, setApiPlans] = useState([]);
   const [wantsToUpgrade, setWantsToUpgrade] = useState(false);
@@ -164,6 +164,7 @@ const VPSubscriptionPage = () => {
       category: "Service Level Agreement",
       features: [
         { label: "Support", detail: "Data and software provided as-is, with a 48-hour response time." },
+        { label: "Weather Fit Advisory", detail: "Custom data analysis, CONOPS-weather design" },
       ],
     },
   ];
@@ -188,6 +189,7 @@ const VPSubscriptionPage = () => {
         ["Data Resolution", true],
         ["Geographical Coverage", "Worldwide (7-day trial)"],
         ["Support", true],
+        ["Weather Fit Advisory", true],
       ],
     },
     {
@@ -204,6 +206,7 @@ const VPSubscriptionPage = () => {
         ["Data Resolution", true],
         ["Geographical Coverage", "Single country"],
         ["Support", true],
+        ["Weather Fit Advisory", true]
       ],
     },
     {
@@ -220,6 +223,7 @@ const VPSubscriptionPage = () => {
         ["Data Resolution", true],
         ["Geographical Coverage", "Worldwide"],
         ["Support", true],
+        ["Weather Fit Advisory", true]
       ],
     },
     {
@@ -235,6 +239,7 @@ const VPSubscriptionPage = () => {
         ["Data Resolution", true],
         ["Geographical Coverage", "Customised (worldwide)"],
         ["Support", true],
+        ["Weather Fit Advisory", true]
       ],
     },
   ];
@@ -387,7 +392,9 @@ const VPSubscriptionPage = () => {
                           return (
                             <div key={idx} className="grid-cell plan-feature-col">
                               {value === true ? (
-                                <span className="feature-check" aria-label="Included">✓</span>
+                                <svg className="feature-check" viewBox="0 0 16 16" aria-label="Included">
+                                  <path d="M3 8.5L6.5 12L13 4" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
                               ) : value === false ? (
                                 <span className="feature-dash" aria-hidden="true">–</span>
                               ) : (
@@ -406,7 +413,7 @@ const VPSubscriptionPage = () => {
                   {plans.map((plan, idx) => {
                     const planKey = `${plan.tier}-${billingCycle}`;
                     const isLoading = subscribingPlan === planKey;
-                    const hasAgreed = agreedPlans[planKey] || false;
+                    const hasAgreed = agreedPlanKey === planKey;
                     const isCorporate = plan.tier.toLowerCase() === "corporate";
                     const btnState = getButtonState(plan);
 
@@ -418,9 +425,7 @@ const VPSubscriptionPage = () => {
                               <input
                                 type="checkbox"
                                 checked={hasAgreed}
-                                onChange={(e) =>
-                                  setAgreedPlans((prev) => ({ ...prev, [planKey]: e.target.checked }))
-                                }
+                                onChange={(e) => setAgreedPlanKey(e.target.checked ? planKey : null)}
                               />{" "}
                               I agree to the{" "}
                               <a

@@ -12,7 +12,7 @@ const VMSubscriptionPage = () => {
   const [subStatus, setSubStatus]         = useState(null);
   const [subLoading, setSubLoading]       = useState(true);
   const [billingCycle, setBillingCycle]   = useState("monthly");
-  const [agreedPlans, setAgreedPlans]     = useState({});
+  const [agreedPlanKey, setAgreedPlanKey] = useState(null);
   const [subscribingPlan, setSubscribingPlan] = useState(null);
   const [apiPlans, setApiPlans] = useState([]);
   // NEW: when someone already has an active plan, the full comparison
@@ -564,11 +564,15 @@ const VMSubscriptionPage = () => {
                           const value = found ? found[1] : false;
                           return (
                             <div key={idx} className="grid-cell plan-feature-col">
-                              {value === true
-                                ? "✅"
-                                : value === false
-                                ? "❌"
-                                : <span className="value-text">{value}</span>}
+                              {value === true ? (
+                                <svg className="feature-check" viewBox="0 0 16 16" aria-label="Included">
+                                  <path d="M3 8.5L6.5 12L13 4" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              ) : value === false ? (
+                                <span className="feature-dash" aria-hidden="true">–</span>
+                              ) : (
+                                <span className="value-text">{value}</span>
+                              )}
                             </div>
                           );
                         })}
@@ -583,7 +587,7 @@ const VMSubscriptionPage = () => {
                   {plans.map((plan, idx) => {
                     const planKey     = `${plan.tier}-${billingCycle}`;
                     const isLoading   = subscribingPlan === planKey;
-                    const hasAgreed   = agreedPlans[planKey] || false;
+                    const hasAgreed   = agreedPlanKey === planKey;
                     const isFree      = plan.tier.toLowerCase() === "free";
                     const isCorporate = plan.tier.toLowerCase() === "corporate";
                     const btnState    = getButtonState(plan);
@@ -595,16 +599,11 @@ const VMSubscriptionPage = () => {
                         {/* Terms checkbox for paid plans */}
                         {!isCorporate && !isFree && btnState === "subscribe" && (
                           <label style={{ fontSize: "0.8rem", display: "block", marginBottom: "0.5rem" }}>
-                            <input
-                              type="checkbox"
-                              checked={hasAgreed}
-                              onChange={(e) =>
-                                setAgreedPlans((prev) => ({
-                                  ...prev,
-                                  [planKey]: e.target.checked,
-                                }))
-                              }
-                            />{" "}
+                              <input
+                                type="checkbox"
+                                checked={hasAgreed}
+                                onChange={(e) => setAgreedPlanKey(e.target.checked ? planKey : null)}
+                              />{" "}
                             I agree to the{" "}
                             <a
                               href="https://www.dm-airtech.com/privacy-policy/"
