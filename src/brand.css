@@ -21,7 +21,7 @@
   --color-cta:           var(--brand-orange);
   --color-success:       var(--brand-green);
   --color-category-bg:   #050f18;
-
+  --color-tick:  #355e3b;;
   /* Fonts */
   --font-primary: 'Open Sans', Tahoma, Helvetica;
   --font-ui:      Tahoma, Helvetica, 'Open Sans';

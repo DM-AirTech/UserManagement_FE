@@ -435,7 +435,7 @@
   width: 15px;
   height: 15px;
   margin: 0 auto;
-  color: #355e3b;
+  color: var(--color-tick);
 }
 
 .feature-dash {
