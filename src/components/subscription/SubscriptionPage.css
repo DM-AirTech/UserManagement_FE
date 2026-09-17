@@ -431,14 +431,20 @@
   color: #b36b00; 
 }
 .feature-check {
+  display: block;
   width: 15px;
   height: 15px;
-  color: var(--brand-green);
-  vertical-align: -2px;
+  margin: 0 auto;
+  color: #355e3b;
 }
 
 .feature-dash {
   color: var(--color-text-muted);
   font-size: 13px;
   opacity: 0.45;
+}
+.plan-feature-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
