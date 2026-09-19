@@ -165,6 +165,37 @@ const VMSubscriptionPage = () => {
     }
   };
 
+  const handleChangePlan = async (newPlanId, tierName, interval) => {
+    const apiKey = localStorage.getItem("userApiKey");
+    const planKey = `${tierName}-${interval}`;
+    setSubscribingPlan(planKey);
+
+    try {
+      const res = await fetch(`${API_BASE}/subscriptions/change-plan`, {
+        method: "POST",
+        headers: {
+          "X-User-API-Key": apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ new_plan_id: newPlanId }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.detail || "Plan change failed.");
+        return;
+      }
+
+      toast.success(data.message || "Plan updated.");
+      await fetchSubStatus();
+    } catch (err) {
+      console.error("Change plan error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSubscribingPlan(null);
+    }
+  };
+
   // ─── Cancel handler (used by the current-plan card) ────────────────
     // ─── Cancel handler (used by the current-plan card) ────────────────
   const handleCancelSubscription = async () => {
@@ -371,25 +402,26 @@ const VMSubscriptionPage = () => {
 
   // ─── Helper: derive button state from subStatus ───────────────────
   const getButtonState = (plan) => {
-    const isFree      = plan.tier.toLowerCase() === "free";
+    const isFree = plan.tier.toLowerCase() === "free";
     const isCorporate = plan.tier.toLowerCase() === "corporate";
-
     if (isCorporate) return "contact";
-
-    // If still loading status — disable all buttons
     if (subLoading) return "loading";
-    if (subStatus?.is_custom) return "custom";
 
-    // User has active subscription
     if (subStatus?.status === "active") {
-      // Is this their current plan?
       if (subStatus.product_code === plan.productCode) return "current";
-      // Different plan — offer change
-      return isFree ? "downgrade" : "upgrade";
+
+      const samePlanEntry = apiPlans.find((p) => p.product_code === subStatus.product_code);
+      const targetPlanEntry = apiPlans.find((p) => p.product_code === plan.productCode);
+      const canUpgrade =
+        samePlanEntry &&
+        targetPlanEntry &&
+        targetPlanEntry.interval === samePlanEntry.interval &&
+        targetPlanEntry.price > samePlanEntry.price;
+
+      return canUpgrade ? "upgrade" : "blocked";
     }
 
-    if (isFree) return "free";
-    return "subscribe";
+    return isFree ? "trial" : "subscribe";
   };
 
   const isActiveSubscriber = subStatus?.status === "active";

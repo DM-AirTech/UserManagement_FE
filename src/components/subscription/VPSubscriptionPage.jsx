@@ -119,7 +119,36 @@ const VPSubscriptionPage = () => {
       setSubscribingPlan(null);
     }
   };
+  const handleChangePlan = async (newPlanId, tierName, interval) => {
+    const apiKey = localStorage.getItem("userApiKey");
+    const planKey = `${tierName}-${interval}`;
+    setSubscribingPlan(planKey);
 
+    try {
+      const res = await fetch(`${API_BASE}/vertiplace-subscriptions/change-plan`, {
+        method: "POST",
+        headers: {
+          "X-User-API-Key": apiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ new_plan_id: newPlanId }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.detail || "Plan change failed.");
+        return;
+      }
+
+      toast.success(data.message || "Plan updated.");
+      await fetchSubStatus();
+    } catch (err) {
+      console.error("Change plan error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setSubscribingPlan(null);
+    }
+  };
   const handleCancelSubscription = async () => {
     if (!window.confirm("Are you sure you want to cancel your VertiPlace subscription?")) return;
     try {
@@ -249,9 +278,21 @@ const VPSubscriptionPage = () => {
     const isCorporate = plan.tier.toLowerCase() === "corporate";
     if (isCorporate) return "contact";
     if (subLoading) return "loading";
+
     if (subStatus?.status === "active") {
-      return subStatus.product_code === plan.productCode ? "current" : "upgrade";
+      if (subStatus.product_code === plan.productCode) return "current";
+
+      const samePlanEntry = apiPlans.find((p) => p.product_code === subStatus.product_code);
+      const targetPlanEntry = apiPlans.find((p) => p.product_code === plan.productCode);
+      const canUpgrade =
+        samePlanEntry &&
+        targetPlanEntry &&
+        targetPlanEntry.interval === samePlanEntry.interval &&
+        targetPlanEntry.price > samePlanEntry.price;
+
+      return canUpgrade ? "upgrade" : "blocked";
     }
+
     return isFree ? "trial" : "subscribe";
   };
 
@@ -476,14 +517,21 @@ const VPSubscriptionPage = () => {
                           {btnState === "upgrade" && (
                             <button
                               className="subscribe-btn"
+                              disabled={isLoading}
                               onClick={() => {
-                                if (window.confirm(`Switch to ${plan.tier} plan?`)) {
-                                  handleSubscribe(plan.productCode, plan.tier, plan.interval);
+                                const targetPlan = apiPlans.find((p) => p.product_code === plan.productCode);
+                                if (targetPlan && window.confirm(`Upgrade to ${plan.tier}?`)) {
+                                  handleChangePlan(targetPlan.id, plan.tier, plan.interval);
                                 }
                               }}
                             >
-                              Switch Plan
+                              {isLoading ? "Upgrading..." : "Upgrade"}
                             </button>
+                          )}
+                          {btnState === "blocked" && (
+                            <span style={{ fontSize: "0.8rem", color: "#888" }}>
+                              Cancel your current plan to switch
+                            </span>
                           )}
                         </div>
                       </div>
